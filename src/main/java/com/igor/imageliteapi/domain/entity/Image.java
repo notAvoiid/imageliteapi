@@ -29,18 +29,18 @@ public class Image {
     @Column(name = "image_size")
     private Long size;
 
-    @Column
+    @Column(name = "image_extension")
     @Enumerated(EnumType.STRING)
     private ImageExtension extension;
 
-    @Column
+    @Column(name = "image_uploadDate")
     @CreatedDate
     private LocalDateTime uploadDate;
 
     @Column(name = "image_tags")
     private String tags;
 
-    @Column
+    @Column(name = "image_file")
     @Lob
     private byte[] file;
 
