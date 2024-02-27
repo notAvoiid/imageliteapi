@@ -56,4 +56,8 @@ public class Image {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public String getFileName(){
+        return getName().concat(".").concat(getExtension().name());
+    }
 }
