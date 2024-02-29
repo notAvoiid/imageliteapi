@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/images")
@@ -28,9 +28,9 @@ public class ImagesController {
     private final ImageMapper mapper;
     @PostMapping
     public ResponseEntity<Image> save(
-            @RequestParam(value = "image_file", required = true) MultipartFile file,
-            @RequestParam(value = "name", required = true) String name,
-            @RequestParam(value = "tags", required = true) List<String> tags
+            @RequestParam(value = "image_file") MultipartFile file,
+            @RequestParam(value = "name") String name,
+            @RequestParam(value = "tags") List<String> tags
     ) throws IOException {
         log.info("Image received: name: {}, size: {}", file.getOriginalFilename(), file.getSize());
 
@@ -57,10 +57,25 @@ public class ImagesController {
         return new ResponseEntity<>(image.getFile(), headers, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<List<ImageDTO>> search(
+            @RequestParam(value = "extension", required = false, defaultValue = " ") String extension,
+            @RequestParam(value = "query", required = false) String query
+    ){
+        List<Image> result = service.search(ImageExtension.ofName(extension), query);
+
+        var images = result.stream().map(image -> {
+            var url = buildImageURL(image);
+            return mapper.imageToDto(image, url.toString());
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(images);
+    }
+
     private URI buildImageURL(Image image){
         String imagePath = "/" + image.getId();
         return ServletUriComponentsBuilder
-                .fromCurrentRequest()
+                .fromCurrentRequestUri()
                 .path(imagePath).build().toUri();
     }
 

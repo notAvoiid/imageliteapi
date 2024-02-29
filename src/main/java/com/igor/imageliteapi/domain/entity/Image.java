@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity(name = "image")
-@Table(name = "image")
+@Table
 @Getter
 @Setter
 @AllArgsConstructor
